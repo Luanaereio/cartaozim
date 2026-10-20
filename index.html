@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cartãozim</title>
+<meta name="description" content="Anote as despesas do cartão, mês a mês, e veja tudo em qualquer celular pelo mesmo link.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#5B3DF5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F1222" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cartãozim">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icones/icone.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icones/icone-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+
+<header class="topo">
+  <div class="topo-dentro">
+    <h1 class="marca"><span class="marca-glifo" aria-hidden="true"></span>Cartãozim</h1>
+    <div class="topo-acoes">
+      <span class="estado" id="estado" title="Sincronização"><i></i><span id="estadoTexto">carregando</span></span>
+      <button class="icone-botao" type="button" id="abrirAjustes" aria-label="Ajustes e seu link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="app">
+
+  <!-- o cartao do mes -->
+  <section class="cartao" aria-label="Resumo do mês">
+    <div class="cartao-brilho" aria-hidden="true"></div>
+    <div class="mes-nav">
+      <button class="mes-seta" type="button" id="mesAnterior" aria-label="Mês anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button class="mes-nome" type="button" id="mesNome" aria-live="polite">Outubro 2026</button>
+      <button class="mes-seta" type="button" id="mesSeguinte" aria-label="Mês seguinte"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+    </div>
+    <p class="cartao-rotulo">Total do mês</p>
+    <p class="cartao-total" id="total">R$ 0,00</p>
+    <div class="cartao-pe">
+      <span id="contagem">nenhum lançamento</span>
+      <span id="comparacao" class="comparacao"></span>
+    </div>
+    <ul class="cartoes-resumo" id="cartoesResumo" hidden></ul>
+    <button class="hoje" type="button" id="irHoje" hidden>Voltar para hoje</button>
+  </section>
+
+  <!-- a lista -->
+  <section class="lista" aria-label="Lançamentos do mês">
+    <div id="lista"></div>
+  </section>
+
+</main>
+
+<button class="mais" type="button" id="novo" aria-label="Lançar despesa">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+</button>
+
+<!-- ============ folha: lancar / editar ============ -->
+<div class="veu" id="veuForm" hidden></div>
+<section class="folha" id="folhaForm" role="dialog" aria-modal="true" aria-labelledby="folhaTitulo" hidden>
+  <div class="folha-alca" aria-hidden="true"></div>
+  <form id="form" novalidate>
+    <div class="folha-cabeca">
+      <h2 id="folhaTitulo">Nova despesa</h2>
+      <button class="icone-botao" type="button" id="fecharForm" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <label class="campo campo-valor">
+      <span>Valor</span>
+      <input id="valor" name="valor" type="text" inputmode="numeric" autocomplete="off" placeholder="R$ 0,00" required>
+    </label>
+    <label class="campo">
+      <span>Descrição</span>
+      <input id="descricao" name="descricao" type="text" autocomplete="off" maxlength="120" placeholder="Mercado, farmácia, Uber..." required>
+    </label>
+    <div class="campos-lado">
+      <label class="campo">
+        <span>Data</span>
+        <input id="data" name="data" type="date" required>
+      </label>
+      <label class="campo">
+        <span>Cartão <small>(opcional)</small></span>
+        <input id="cartao" name="cartao" type="text" list="cartoesLista" autocomplete="off" maxlength="40" placeholder="Nubank, Inter...">
+        <datalist id="cartoesLista"></datalist>
+      </label>
+    </div>
+    <label class="campo" id="campoParcelas">
+      <span>Parcelas</span>
+      <select id="parcelas" name="parcelas"></select>
+      <small class="dica" id="dicaParcelas"></small>
+    </label>
+    <p class="parcela-info" id="parcelaInfo" hidden></p>
+    <div class="folha-acoes">
+      <button class="botao botao-perigo" type="button" id="apagar" hidden>Apagar</button>
+      <button class="botao botao-cheio" type="submit" id="salvar">Salvar</button>
+    </div>
+  </form>
+</section>
+
+<!-- ============ folha: apagar parcelas ============ -->
+<div class="veu" id="veuApagar" hidden></div>
+<section class="folha folha-curta" id="folhaApagar" role="dialog" aria-modal="true" aria-labelledby="apagarTitulo" hidden>
+  <div class="folha-alca" aria-hidden="true"></div>
+  <h2 id="apagarTitulo">Apagar esta despesa?</h2>
+  <p class="folha-texto" id="apagarTexto"></p>
+  <div class="folha-acoes folha-acoes-coluna">
+    <button class="botao botao-perigo" type="button" id="apagarUma">Apagar só esta parcela</button>
+    <button class="botao botao-perigo botao-vazio" type="button" id="apagarTodas">Apagar todas as parcelas</button>
+    <button class="botao botao-vazio" type="button" id="apagarCancelar">Cancelar</button>
+  </div>
+</section>
+
+<!-- ============ folha: ajustes e link ============ -->
+<div class="veu" id="veuAjustes" hidden></div>
+<section class="folha" id="folhaAjustes" role="dialog" aria-modal="true" aria-labelledby="ajustesTitulo" hidden>
+  <div class="folha-alca" aria-hidden="true"></div>
+  <div class="folha-cabeca">
+    <h2 id="ajustesTitulo">Seu link</h2>
+    <button class="icone-botao" type="button" id="fecharAjustes" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <p class="folha-texto" id="ajustesIntro">Os lançamentos ficam guardados neste link. Abra o mesmo link em outro celular e tudo aparece lá também. Quem não tiver o link não vê nada.</p>
+  <div class="link-caixa">
+    <code id="linkTexto"></code>
+    <div class="link-acoes">
+      <button class="botao botao-cheio" type="button" id="copiarLink">Copiar link</button>
+      <button class="botao botao-vazio" type="button" id="compartilharLink" hidden>Compartilhar</button>
+    </div>
+  </div>
+  <p class="dica">Dica: no celular, use "Adicionar à tela inicial" com este link aberto para o Cartãozim virar um app.</p>
+  <h3 class="folha-sub">Já tem um link em outro celular?</h3>
+  <form class="trocar" id="formTrocar">
+    <label class="campo">
+      <span>Cole o link ou o código aqui</span>
+      <input id="codigoNovo" type="text" autocomplete="off" placeholder="https://... ou o código">
+    </label>
+    <button class="botao botao-vazio" type="submit">Usar este código</button>
+  </form>
+  <h3 class="folha-sub">Exportar</h3>
+  <button class="botao botao-vazio" type="button" id="exportar">Baixar o mês em CSV</button>
+  <p class="dica dica-armazem" id="armazemAviso" hidden></p>
+</section>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script src="app.js" defer></script>
+</body>
+</html>
