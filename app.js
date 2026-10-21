@@ -91,9 +91,23 @@
     estado('', 'sincronizando');
     return api('GET').then(function (j) {
       armazem = j.armazem;
-      // o que veio do servidor manda; o que esta na fila (ainda nao enviado) fica por cima
       var mapa = {};
-      (j.itens || []).forEach(function (i) { mapa[i.id] = i; });
+      var doServidor = j.itens || [];
+      if (armazem === 'redis') {
+        // com banco de verdade, o que veio do servidor manda
+        doServidor.forEach(function (i) { mapa[i.id] = i; });
+      } else {
+        // servidor sem banco (memoria): ele esquece tudo a cada reinicio, entao a copia deste navegador e a que
+        // vale. Comeca pelo que esta aqui, deixa o servidor por cima (pode ter edicao mais nova) e devolve a ele
+        // o que ele perdeu, em lotes, pela fila.
+        itens.forEach(function (i) { mapa[i.id] = i; });
+        var noServidor = {};
+        doServidor.forEach(function (i) { noServidor[i.id] = true; mapa[i.id] = i; });
+        var perdidos = itens.filter(function (i) { return !noServidor[i.id]; });
+        for (var k = 0; k < perdidos.length; k += 48) fila.push({ op: 'salvar', itens: perdidos.slice(k, k + 48) });
+        if (perdidos.length) guardarFila();
+      }
+      // o que esta na fila (ainda nao enviado) fica por cima
       fila.forEach(function (op) {
         if (op.op === 'salvar') op.itens.forEach(function (i) { mapa[i.id] = i; });
         if (op.op === 'apagar') op.ids.forEach(function (idx) { delete mapa[idx]; });
@@ -127,7 +141,7 @@
   }
   function avisoArmazem() {
     var a = $('#armazemAviso');
-    if (armazem === 'memoria') { a.hidden = false; a.textContent = 'Atenção: o servidor está sem banco conectado (modo de teste). Os lançamentos ficam só neste navegador até o Redis ser ligado na Vercel.'; }
+    if (armazem !== 'redis') { a.hidden = false; a.textContent = 'Atenção: o servidor está sem banco conectado. Os lançamentos ficam guardados neste navegador, mas não aparecem em outro celular até o Redis ser ligado na Vercel.'; }
     else a.hidden = true;
   }
 

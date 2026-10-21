@@ -13,8 +13,15 @@ var LIMITE_LOTE = 48;
 function erro(status, mensagem) { var e = new Error(mensagem); e.status = status; return e; }
 
 function armazem() {
-  var url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-  var token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+  // A integracao do Upstash na Vercel cria <PREFIXO>_REST_API_URL e <PREFIXO>_REST_API_TOKEN (prefixo KV por
+  // padrao, mas quem instala pode escolher outro); o Upstash direto usa UPSTASH_REDIS_REST_*. Aceita qualquer um.
+  var env = process.env;
+  var url = env.KV_REST_API_URL || env.UPSTASH_REDIS_REST_URL;
+  var token = env.KV_REST_API_TOKEN || env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) {
+    var nomes = Object.keys(env).filter(function (n) { return /_REST_API_URL$/.test(n) && env[n.replace(/_URL$/, '_TOKEN')]; }).sort();
+    if (nomes.length) { url = env[nomes[0]]; token = env[nomes[0].replace(/_URL$/, '_TOKEN')]; }
+  }
   if (url && token) return redis(url, token);
   return memoria();
 }
